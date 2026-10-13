@@ -6,7 +6,7 @@
     <title>Relocation Expense Tracker</title>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase Compat SDKs (Zero setup needed) -->
+    <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -393,7 +393,7 @@
             <span>Log</span>
         </div>
         <div class="nav-item" onclick="switchView('settings')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Config</span>
         </div>
     </nav>
@@ -416,6 +416,13 @@
             <p id="dash-period-label" style="color:var(--text-muted); font-size:0.85rem; margin-bottom:15px; text-align:center;">Showing data for all time</p>
 
             <div class="stat-grid">
+                <!-- NEW MARIBANK SAVINGS TILE (Spans 2 columns) -->
+                <div class="stat-box" style="grid-column: span 2; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; border: none; padding: 20px;">
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">Maribank Vault</div>
+                    <div class="stat-value" id="dash-savings-total" style="color: white; font-size: 2rem;">₱0.00</div>
+                    <div style="font-size: 0.85rem; margin-top: 8px; color: rgba(255,255,255,0.9);">Interest Earned: <span id="dash-savings-interest" style="font-weight:bold;">₱0.00</span></div>
+                </div>
+
                 <div class="stat-box">
                     <div class="stat-label">Total Spent</div>
                     <div class="stat-value" id="dash-total-exp">₱0</div>
@@ -562,8 +569,13 @@
 
             <div class="card">
                 <h2>Rates & Billing Cycles</h2>
-                <p style="font-size:0.85rem; margin-bottom:15px; color:var(--text-muted);">Set your monthly utility billing period to auto-calculate your electricity usage.</p>
                 <form id="settings-form" onsubmit="saveSettings(event)">
+                    <!-- Savings Interest Rate Configuration -->
+                    <div class="form-group">
+                        <label>Bank Interest Rate (% p.a.)</label>
+                        <input type="number" step="0.01" id="set-interest" value="4.50" required>
+                    </div>
+
                     <div class="form-group"><label>Electricity Rate (₱ per kWh)</label><input type="number" step="0.01" id="set-kwh" value="12.00" required></div>
                     <div class="form-group"><label>Utility Billing Start Date</label><input type="date" id="set-util-start" required></div>
                     <div class="form-group"><label>Utility Billing End Date</label><input type="date" id="set-util-end" required></div>
@@ -605,7 +617,7 @@
 
     let currentUser = null;
     let appData = { 
-        settings: { kwhRate: 12.00, utilityStart: '', utilityEnd: '' }, 
+        settings: { kwhRate: 12.00, interestRate: 4.5, utilityStart: '', utilityEnd: '' }, 
         paychecks: [], 
         expenses: [], 
         meterReadings: [], 
@@ -831,8 +843,9 @@
         const descGroup = document.getElementById('loan-desc-group');
         const amountInput = document.getElementById('bill-amount');
 
-        descGroup.style.display = (type === 'Loan' || type === 'Savings') ? 'block' : 'none';
-        if (type !== 'Loan' && type !== 'Savings') document.getElementById('bill-desc').value = '';
+        // Show description ONLY for loans. Savings is just "Savings"
+        descGroup.style.display = (type === 'Loan') ? 'block' : 'none';
+        if (type !== 'Loan') document.getElementById('bill-desc').value = '';
 
         if (type === 'Electricity') {
             const uStart = appData.settings?.utilityStart || '';
@@ -858,7 +871,9 @@
             try {
                 const rawType = document.getElementById('bill-type').value;
                 const desc = document.getElementById('bill-desc').value;
-                const typeString = (rawType === 'Loan' || rawType === 'Savings') && desc.trim() !== '' ? `${rawType} (${desc})` : rawType;
+                
+                // Only attach the custom description if it's a Loan
+                const typeString = (rawType === 'Loan') && desc.trim() !== '' ? `${rawType} (${desc})` : rawType;
 
                 const bill = {
                     id: Date.now().toString(),
@@ -891,7 +906,14 @@
             bill.paid = true; 
             saveStateOnly(); 
             showToast('Marked as Paid!');
-            setTimeout(() => { renderBills(); }, 400); 
+            setTimeout(() => { renderBills(); renderDashboardOnly(); }, 400); 
+        }
+    }
+    
+    // Quick repainter so the dashboard catches toggled payments
+    function renderDashboardOnly() {
+        if(document.getElementById('dashboard').classList.contains('active')) {
+            updateDashboard();
         }
     }
 
@@ -995,8 +1017,8 @@
 
             items.forEach(exp => {
                 const isSavings = exp.category === 'Savings';
-                const textColor = isSavings ? 'var(--info)' : 'var(--danger)';
-                const sign = isSavings ? '' : '-';
+                const textColor = isSavings ? 'var(--success)' : 'var(--danger)';
+                const sign = isSavings ? '+' : '-';
                 const delFunc = exp.isBill ? `deleteBill('${exp.id}')` : `deleteExpense('${exp.id}')`;
 
                 const itemDiv = document.createElement('div');
@@ -1020,6 +1042,40 @@
     let catChartInstance = null;
     function updateDashboard() {
         try {
+            // --- DAILY COMPOUNDING SAVINGS CALCULATION ---
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            
+            const annualRate = parseFloat(appData.settings?.interestRate) || 4.5;
+            const dailyRate = (annualRate / 100) / 365;
+
+            let totalSavingsPrincipal = 0;
+            let totalSavingsWithInterest = 0;
+
+            const allSavings = (appData.bills || []).filter(b => b.category === 'Savings' && b.paid);
+            
+            allSavings.forEach(saveItem => {
+                const depositDate = new Date(saveItem.date);
+                depositDate.setHours(0, 0, 0, 0);
+                
+                let daysDiff = Math.floor((todayDate - depositDate) / (1000 * 60 * 60 * 24));
+                if (daysDiff < 0) daysDiff = 0; // Don't compute negative days if dated in future
+                
+                const principal = parseFloat(saveItem.amount) || 0;
+                // Compound Interest: P(1 + r)^t
+                const accruedAmount = principal * Math.pow(1 + dailyRate, daysDiff);
+                
+                totalSavingsPrincipal += principal;
+                totalSavingsWithInterest += accruedAmount;
+            });
+
+            const totalInterestEarned = totalSavingsWithInterest - totalSavingsPrincipal;
+            
+            document.getElementById('dash-savings-total').textContent = `₱${totalSavingsWithInterest.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+            document.getElementById('dash-savings-interest').textContent = `+₱${totalInterestEarned.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+            // ----------------------------------------------
+
+
             const activePC = getActivePaycheck();
             const alertBanner = document.getElementById('payday-alert');
             const periodLabel = document.getElementById('dash-period-label');
@@ -1029,11 +1085,12 @@
             let cycleKwh = appData.meterReadings || [];
 
             if (activePC) {
-                const todayStr = new Date().toISOString().split('T')[0];
+                const todayStr = todayDate.toISOString().split('T')[0];
                 alertBanner.classList.toggle('show', todayStr >= activePC.nextPayDate);
                 periodLabel.innerHTML = `Cycle: <b>${new Date(activePC.payDate).toLocaleDateString()}</b> to <b>${new Date(activePC.nextPayDate).toLocaleDateString()}</b>`;
 
                 cycleExpenses = (appData.expenses || []).filter(e => e.date >= activePC.payDate && e.date < activePC.nextPayDate);
+                // "Savings" will be included in cycleBills because it is saved as a paid bill, directly subtracting from Takehome
                 cycleBills = (appData.bills || []).filter(b => b.paid && b.date >= activePC.payDate && b.date < activePC.nextPayDate);
             } else {
                 alertBanner.classList.remove('show');
@@ -1084,7 +1141,7 @@
                     labels: Object.keys(categories).length > 0 ? Object.keys(categories) : ['No Data'],
                     datasets: [{
                         data: Object.keys(categories).length > 0 ? Object.values(categories) : [1],
-                        backgroundColor: Object.keys(categories).length > 0 ? ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#3b82f6'] : ['#e5e7eb'],
+                        backgroundColor: Object.keys(categories).length > 0 ? ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#3b82f6', '#14b8a6'] : ['#e5e7eb'],
                         borderWidth: 0
                     }]
                 },
@@ -1118,6 +1175,7 @@
     }
 
     function loadSettingsForm() {
+        document.getElementById('set-interest').value = appData.settings?.interestRate || 4.5;
         document.getElementById('set-kwh').value = appData.settings?.kwhRate || 12;
         document.getElementById('set-util-start').value = appData.settings?.utilityStart || '';
         document.getElementById('set-util-end').value = appData.settings?.utilityEnd || '';
@@ -1133,6 +1191,7 @@
         setTimeout(() => {
             try {
                 if (!appData.settings) appData.settings = {};
+                appData.settings.interestRate = parseFloat(document.getElementById('set-interest').value) || 4.5;
                 appData.settings.kwhRate = parseFloat(document.getElementById('set-kwh').value) || 12;
                 appData.settings.utilityStart = document.getElementById('set-util-start').value;
                 appData.settings.utilityEnd = document.getElementById('set-util-end').value;
@@ -1147,7 +1206,7 @@
 
     function clearAllData() {
         if(confirm('Are you absolutely sure? This will permanently delete all cloud data.')) {
-            appData = { settings: { kwhRate: 12.00, utilityStart: '', utilityEnd: '' }, paychecks: [], expenses: [], meterReadings: [], bills: [] };
+            appData = { settings: { kwhRate: 12.00, interestRate: 4.5, utilityStart: '', utilityEnd: '' }, paychecks: [], expenses: [], meterReadings: [], bills: [] };
             saveData();
             showToast('All data cleared.');
         }
