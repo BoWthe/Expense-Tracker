@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Relocation Expense Tracker</title>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase Compat SDKs (Zero setup needed) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
     <style>
         :root {
             --primary: #4f46e5;
@@ -239,7 +245,7 @@
             font-size: 0.9rem;
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 1000;
+            z-index: 2000;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             white-space: nowrap;
         }
@@ -319,9 +325,50 @@
             transition: transform 0.2s;
         }
         #global-refresh:active { transform: rotate(180deg) scale(0.9); }
+
+        /* Login Modal Overlay */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--surface-light);
+            padding: 30px 25px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
+
+<!-- Login Modal -->
+<div id="auth-overlay">
+    <div class="auth-card">
+        <h2 style="text-align: center; margin-bottom: 10px;">Sign In to Sync</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 25px;">Enter your Firebase credentials to access your synced tracker.</p>
+        <form onsubmit="handleAuth(event)">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="auth-email" required placeholder="you@email.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="auth-pass" required placeholder="••••••••">
+            </div>
+            <button type="submit" id="auth-btn">Sign In</button>
+        </form>
+    </div>
+</div>
 
 <div id="app-container">
     <nav>
@@ -346,7 +393,7 @@
             <span>Log</span>
         </div>
         <div class="nav-item" onclick="switchView('settings')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Config</span>
         </div>
     </nav>
@@ -502,6 +549,12 @@
             <h1>Configuration</h1>
             
             <div class="card">
+                <h2>Cloud Account & Sync</h2>
+                <p id="auth-status-text" style="font-size:0.85rem; margin-bottom:15px; color:var(--success);">Connected to Cloud</p>
+                <button type="button" class="btn-outline" onclick="firebase.auth().signOut()">Sign Out of Account</button>
+            </div>
+
+            <div class="card">
                 <h2>Data Management</h2>
                 <p style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">Export your records to a spreadsheet.</p>
                 <button type="button" class="btn-outline" onclick="exportCSV()">Download Data (CSV)</button>
@@ -512,16 +565,14 @@
                 <p style="font-size:0.85rem; margin-bottom:15px; color:var(--text-muted);">Set your monthly utility billing period to auto-calculate your electricity usage.</p>
                 <form id="settings-form" onsubmit="saveSettings(event)">
                     <div class="form-group"><label>Electricity Rate (₱ per kWh)</label><input type="number" step="0.01" id="set-kwh" value="12.00" required></div>
-                    
                     <div class="form-group"><label>Utility Billing Start Date</label><input type="date" id="set-util-start" required></div>
                     <div class="form-group"><label>Utility Billing End Date</label><input type="date" id="set-util-end" required></div>
-
                     <button type="submit">Save Settings</button>
                 </form>
             </div>
             <div class="card" style="border-color: var(--danger);">
                 <h2 style="color: var(--danger);">Danger Zone</h2>
-                <p style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">Deletes all local tracking data.</p>
+                <p style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">Deletes data from the Cloud.</p>
                 <button type="button" style="background-color: var(--danger);" onclick="clearAllData()">Clear All Data</button>
             </div>
         </div>
@@ -531,7 +582,28 @@
 <div id="toast">Saved successfully</div>
 
 <script>
-    const DB_KEY = 'relocTrackerData';
+    // -----------------------------------------------------------------
+    // 1. FIREBASE CONFIGURATION (YOUR KEYS)
+    // -----------------------------------------------------------------
+    const firebaseConfig = {
+        apiKey: "AIzaSyB9R6ufp4TOH_nO-T3zt0j4pQgmHMCEc10",
+        authDomain: "expense-tracker-439bc.firebaseapp.com",
+        projectId: "expense-tracker-439bc",
+        storageBucket: "expense-tracker-439bc.firebasestorage.app",
+        messagingSenderId: "599888973364",
+        appId: "1:599888973364:web:d0cc5f63881324d4e88461",
+        measurementId: "G-F6WSE4NW0Z"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Enable offline local persistence
+    db.enablePersistence({synchronizeTabs: true}).catch(err => console.log('Offline persistence active'));
+
+    let currentUser = null;
     let appData = { 
         settings: { kwhRate: 12.00, utilityStart: '', utilityEnd: '' }, 
         paychecks: [], 
@@ -540,58 +612,82 @@
         bills: [] 
     };
 
-    function loadData() {
-        const stored = localStorage.getItem(DB_KEY);
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                appData.settings = parsed.settings || { kwhRate: 12.00 };
-                appData.paychecks = parsed.paychecks || [];
-                appData.expenses = parsed.expenses || [];
-                appData.meterReadings = parsed.meterReadings || [];
-                appData.bills = parsed.bills || [];
-            } catch(e) {
-                console.error("Data parse error", e);
-            }
-        }
-        
-        // Auto-configure Monthly Utility Dates if empty
-        if (!appData.settings.utilityStart || !appData.settings.utilityEnd) {
-            const d = new Date();
-            appData.settings.utilityStart = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
-            appData.settings.utilityEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
-        }
-    }
+    // Auto-configure Monthly Utility Dates if empty initially
+    const d = new Date();
+    appData.settings.utilityStart = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+    appData.settings.utilityEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
 
-    function initForms() {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('exp-date').value = today;
-        document.getElementById('meter-date').value = today;
-        document.getElementById('bill-date').value = today;
-        document.getElementById('inc-paydate').value = today;
-        
-        let nextDate = new Date();
-        nextDate.setDate(nextDate.getDate() + 15);
-        document.getElementById('inc-nextdate').value = nextDate.toISOString().split('T')[0];
-        updateMeterHelper();
-    }
+    // -----------------------------------------------------------------
+    // 2. AUTHENTICATION & REAL-TIME SYNC
+    // -----------------------------------------------------------------
+    auth.onAuthStateChanged(user => {
+        const overlay = document.getElementById('auth-overlay');
+        if (user) {
+            currentUser = user;
+            overlay.style.display = 'none';
+            document.getElementById('auth-status-text').textContent = `Logged in as: ${user.email}`;
+            
+            // Listen for live database updates across all devices
+            db.collection('users').doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data().appData;
+                    if (data) {
+                        appData = data;
+                        renderCurrentView();
+                        updateMeterHelper();
+                    }
+                } else {
+                    // First time: save default structure
+                    saveData();
+                }
+            });
+        } else {
+            currentUser = null;
+            overlay.style.display = 'flex';
+        }
+    });
 
-    function manualRefresh() {
-        loadData(); 
-        const activeView = document.querySelector('.view.active').id;
-        switchView(activeView);
-        showToast('Data Synced & Refreshed!');
+    function handleAuth(e) {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-pass').value;
+        const btn = document.getElementById('auth-btn');
+        btn.disabled = true;
+        btn.textContent = 'Connecting...';
+
+        auth.signInWithEmailAndPassword(email, pass).catch(err => {
+            alert('Authentication failed: ' + err.message);
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        });
     }
 
     function saveStateOnly() {
-        localStorage.setItem(DB_KEY, JSON.stringify(appData));
+        if (!currentUser) return;
+        db.collection('users').doc(currentUser.uid).set({ appData }, { merge: true });
     }
 
     function saveData() {
-        localStorage.setItem(DB_KEY, JSON.stringify(appData));
-        if(document.getElementById('dashboard').classList.contains('active')) updateDashboard();
-        if(document.getElementById('expense-log').classList.contains('active')) renderMergedLog();
-        if(document.getElementById('utilities').classList.contains('active')) renderBills();
+        if (!currentUser) return;
+        db.collection('users').doc(currentUser.uid).set({ appData }, { merge: true }).then(() => {
+            renderCurrentView();
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // 3. UI RENDERING & TAB SWITCHING
+    // -----------------------------------------------------------------
+    function renderCurrentView() {
+        const activeView = document.querySelector('.view.active')?.id || 'dashboard';
+        if (activeView === 'dashboard') updateDashboard();
+        if (activeView === 'expense-log') renderMergedLog();
+        if (activeView === 'utilities') renderBills();
+        if (activeView === 'settings') loadSettingsForm();
+    }
+
+    function manualRefresh() {
+        renderCurrentView();
+        showToast('Data Synced & Refreshed!');
     }
 
     function switchView(viewId) {
@@ -600,20 +696,13 @@
         
         document.getElementById(viewId).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(item => {
-            if(item.getAttribute('onclick').includes(viewId)) item.classList.add('active');
+            if(item.getAttribute('onclick')?.includes(viewId)) item.classList.add('active');
         });
 
         const refreshBtn = document.getElementById('global-refresh');
-        if(viewId === 'settings') {
-            refreshBtn.style.display = 'none';
-        } else {
-            refreshBtn.style.display = 'flex';
-        }
+        refreshBtn.style.display = (viewId === 'settings') ? 'none' : 'flex';
 
-        if (viewId === 'dashboard') updateDashboard();
-        if (viewId === 'expense-log') renderMergedLog();
-        if (viewId === 'utilities') renderBills();
-        if (viewId === 'settings') loadSettingsForm();
+        renderCurrentView();
     }
 
     function showToast(msg) {
@@ -623,6 +712,9 @@
         setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
+    // -----------------------------------------------------------------
+    // 4. INCOME, EXPENSE & BILL LOGIC
+    // -----------------------------------------------------------------
     function calcTakehome() {
         const gross = parseFloat(document.getElementById('inc-gross').value) || 0;
         const ded = parseFloat(document.getElementById('inc-ded').value) || 0;
@@ -644,6 +736,7 @@
                     nextPayDate: document.getElementById('inc-nextdate').value,
                     takeHome: parseFloat(document.getElementById('inc-takehome').value) || 0
                 };
+                if (!appData.paychecks) appData.paychecks = [];
                 appData.paychecks.push(pc);
                 saveData();
                 showToast('New Pay Cycle Started!');
@@ -657,8 +750,7 @@
 
     function getActivePaycheck() {
         if (!appData.paychecks || appData.paychecks.length === 0) return null;
-        const sorted = [...appData.paychecks].sort((a,b) => new Date(b.payDate) - new Date(a.payDate));
-        return sorted[0];
+        return [...appData.paychecks].sort((a,b) => new Date(b.payDate) - new Date(a.payDate))[0];
     }
 
     function addExpense(e) {
@@ -677,6 +769,7 @@
                     category: document.getElementById('exp-category').value,
                     amount: parseFloat(document.getElementById('exp-amount').value) || 0
                 };
+                if (!appData.expenses) appData.expenses = [];
                 appData.expenses.push(expense);
                 saveData();
                 document.getElementById('exp-item').value = '';
@@ -703,13 +796,14 @@
                 const current = parseFloat(document.getElementById('meter-current').value) || 0;
                 
                 let prior = current, net = 0;
-                if (appData.meterReadings.length > 0) {
+                if (appData.meterReadings && appData.meterReadings.length > 0) {
                     const sorted = [...appData.meterReadings].sort((a, b) => new Date(b.date) - new Date(a.date));
                     prior = sorted[0].current;
                     net = current - prior;
                     if (net < 0) net = 0; 
                 }
 
+                if (!appData.meterReadings) appData.meterReadings = [];
                 appData.meterReadings.push({ id: Date.now().toString(), date, current, prior, net: parseFloat(net.toFixed(1)) });
                 saveData();
                 document.getElementById('meter-current').value = '';
@@ -724,7 +818,7 @@
 
     function updateMeterHelper() {
         const helper = document.getElementById('meter-calc-helper');
-        if (appData.meterReadings.length > 0) {
+        if (appData.meterReadings && appData.meterReadings.length > 0) {
             const last = [...appData.meterReadings].sort((a,b) => new Date(b.date) - new Date(a.date))[0];
             helper.textContent = `Last reading: ${last.current} kWh on ${last.date}`;
         } else {
@@ -732,34 +826,24 @@
         }
     }
 
-    // Handles toggling descriptions AND Auto-filling Electricity
     function onBillTypeChange() {
         const type = document.getElementById('bill-type').value;
         const descGroup = document.getElementById('loan-desc-group');
         const amountInput = document.getElementById('bill-amount');
 
-        // Toggle specific description UI
-        if (type === 'Loan' || type === 'Savings') {
-            descGroup.style.display = 'block';
-        } else {
-            descGroup.style.display = 'none';
-            document.getElementById('bill-desc').value = ''; 
-        }
+        descGroup.style.display = (type === 'Loan' || type === 'Savings') ? 'block' : 'none';
+        if (type !== 'Loan' && type !== 'Savings') document.getElementById('bill-desc').value = '';
 
-        // Auto-Fill Logic for Electricity based on Monthly Utility Dates
         if (type === 'Electricity') {
-            const uStart = appData.settings.utilityStart;
-            const uEnd = appData.settings.utilityEnd;
-            const rate = parseFloat(appData.settings.kwhRate) || 12;
+            const uStart = appData.settings?.utilityStart || '';
+            const uEnd = appData.settings?.utilityEnd || '';
+            const rate = parseFloat(appData.settings?.kwhRate) || 12;
 
-            // Filter readings within the configured dates
-            const cycleReadings = appData.meterReadings.filter(m => m.date >= uStart && m.date <= uEnd);
+            const cycleReadings = (appData.meterReadings || []).filter(m => m.date >= uStart && m.date <= uEnd);
             const totalCycleKwh = cycleReadings.reduce((sum, r) => sum + parseFloat(r.net || 0), 0);
             
-            const cost = totalCycleKwh * rate;
-            amountInput.value = cost.toFixed(2);
-            
-            showToast(`Auto-filled: ${totalCycleKwh.toFixed(1)} kWh used this month.`);
+            amountInput.value = (totalCycleKwh * rate).toFixed(2);
+            showToast(`Auto-filled: ${totalCycleKwh.toFixed(1)} kWh used this period.`);
         }
     }
 
@@ -775,8 +859,6 @@
                 const rawType = document.getElementById('bill-type').value;
                 const desc = document.getElementById('bill-desc').value;
                 const typeString = (rawType === 'Loan' || rawType === 'Savings') && desc.trim() !== '' ? `${rawType} (${desc})` : rawType;
-                
-                const isPaid = document.getElementById('bill-paid-input').checked;
 
                 const bill = {
                     id: Date.now().toString(),
@@ -784,9 +866,10 @@
                     category: rawType,
                     date: document.getElementById('bill-date').value,
                     amount: parseFloat(document.getElementById('bill-amount').value) || 0,
-                    paid: isPaid
+                    paid: document.getElementById('bill-paid-input').checked
                 };
                 
+                if (!appData.bills) appData.bills = [];
                 appData.bills.push(bill);
                 saveData();
                 
@@ -802,11 +885,12 @@
     }
 
     function toggleBillPaid(id) {
+        if (!appData.bills) return;
         const bill = appData.bills.find(b => b.id === id);
         if (bill) { 
             bill.paid = true; 
             saveStateOnly(); 
-            showToast('Marked as Paid! Added to Log.');
+            showToast('Marked as Paid!');
             setTimeout(() => { renderBills(); }, 400); 
         }
     }
@@ -832,8 +916,8 @@
         const paidContainer = document.getElementById('paid-bills-container');
         pendingContainer.innerHTML = ''; paidContainer.innerHTML = '';
 
-        const pending = appData.bills.filter(b => !b.paid).sort((a,b) => new Date(a.date) - new Date(b.date));
-        const paid = appData.bills.filter(b => b.paid).sort((a,b) => new Date(b.date) - new Date(a.date));
+        const pending = (appData.bills || []).filter(b => !b.paid).sort((a,b) => new Date(a.date) - new Date(b.date));
+        const paid = (appData.bills || []).filter(b => b.paid).sort((a,b) => new Date(b.date) - new Date(a.date));
 
         if(pending.length === 0) pendingContainer.innerHTML = '<p style="color:var(--text-muted);">All clear!</p>';
         if(paid.length === 0) paidContainer.innerHTML = '<p style="color:var(--text-muted);">No payment history.</p>';
@@ -880,8 +964,8 @@
         container.innerHTML = '';
         
         let allItems = [
-            ...appData.expenses.map(e => ({...e, isBill: false})),
-            ...appData.bills.filter(b => b.paid).map(b => ({
+            ...(appData.expenses || []).map(e => ({...e, isBill: false})),
+            ...(appData.bills || []).filter(b => b.paid).map(b => ({
                 id: b.id,
                 date: b.date,
                 item: b.type,
@@ -897,7 +981,6 @@
         }
 
         allItems.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
         const grouped = allItems.reduce((acc, obj) => {
             (acc[obj.date] = acc[obj.date] || []).push(obj);
             return acc;
@@ -947,19 +1030,14 @@
 
             if (activePC) {
                 const todayStr = new Date().toISOString().split('T')[0];
-                if (todayStr >= activePC.nextPayDate) {
-                    alertBanner.classList.add('show');
-                } else {
-                    alertBanner.classList.remove('show');
-                }
-
+                alertBanner.classList.toggle('show', todayStr >= activePC.nextPayDate);
                 periodLabel.innerHTML = `Cycle: <b>${new Date(activePC.payDate).toLocaleDateString()}</b> to <b>${new Date(activePC.nextPayDate).toLocaleDateString()}</b>`;
 
-                cycleExpenses = appData.expenses.filter(e => e.date >= activePC.payDate && e.date < activePC.nextPayDate);
-                cycleBills = appData.bills.filter(b => b.paid && b.date >= activePC.payDate && b.date < activePC.nextPayDate);
+                cycleExpenses = (appData.expenses || []).filter(e => e.date >= activePC.payDate && e.date < activePC.nextPayDate);
+                cycleBills = (appData.bills || []).filter(b => b.paid && b.date >= activePC.payDate && b.date < activePC.nextPayDate);
             } else {
-                if(alertBanner) alertBanner.classList.remove('show');
-                if(periodLabel) periodLabel.innerHTML = "No Paycheck logged. Showing all-time data.";
+                alertBanner.classList.remove('show');
+                periodLabel.innerHTML = "No Paycheck logged. Showing all-time data.";
                 cycleExpenses = appData.expenses || [];
                 cycleBills = (appData.bills || []).filter(b => b.paid);
             }
@@ -971,9 +1049,8 @@
             const takehome = activePC ? (parseFloat(activePC.takeHome) || 0) : 0;
             const remaining = takehome - totalSpent;
 
-            // Power logic keeps running on all time for dashboard display
             const totalKwh = cycleKwh.reduce((sum, r) => sum + parseFloat(r.net || 0), 0);
-            const estPowerCost = totalKwh * (parseFloat(appData.settings.kwhRate) || 12);
+            const estPowerCost = totalKwh * (parseFloat(appData.settings?.kwhRate) || 12);
 
             document.getElementById('dash-total-exp').textContent = `₱${totalSpent.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
             const remEl = document.getElementById('dash-remaining');
@@ -983,7 +1060,7 @@
             document.getElementById('dash-total-kwh').textContent = totalKwh.toFixed(1);
             document.getElementById('dash-power-cost').textContent = `₱${estPowerCost.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
-            // THE FIX: Nuclear Chart Reset
+            // Reset canvas
             const chartWrapper = document.getElementById('chart-wrapper');
             chartWrapper.innerHTML = '<canvas id="categoryChart"></canvas>';
             const ctxCat = document.getElementById('categoryChart').getContext('2d');
@@ -1024,21 +1101,11 @@
     }
 
     function exportCSV() {
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Type,Date,Item/Category,Amount,Status\n";
-        
-        appData.paychecks.forEach(p => {
-            csvContent += `Income Cycle,${p.payDate},Takehome Net,${p.takeHome},Completed\n`;
-        });
-        appData.expenses.forEach(e => {
-            csvContent += `Expense,${e.date},${e.item} (${e.category}),${e.amount},Paid\n`;
-        });
-        appData.bills.forEach(b => {
-            csvContent += `Bill/Loan/Savings,${b.date},${b.type},${b.amount},${b.paid ? 'Paid' : 'Pending'}\n`;
-        });
-        appData.meterReadings.forEach(m => {
-            csvContent += `Meter,${m.date},Reading: ${m.current} kWh (Net: ${m.net} kWh),0,N/A\n`;
-        });
+        let csvContent = "data:text/csv;charset=utf-8,Type,Date,Item/Category,Amount,Status\n";
+        (appData.paychecks || []).forEach(p => { csvContent += `Income Cycle,${p.payDate},Takehome Net,${p.takeHome},Completed\n`; });
+        (appData.expenses || []).forEach(e => { csvContent += `Expense,${e.date},${e.item} (${e.category}),${e.amount},Paid\n`; });
+        (appData.bills || []).forEach(b => { csvContent += `Bill/Loan/Savings,${b.date},${b.type},${b.amount},${b.paid ? 'Paid' : 'Pending'}\n`; });
+        (appData.meterReadings || []).forEach(m => { csvContent += `Meter,${m.date},Reading: ${m.current} kWh (Net: ${m.net} kWh),0,N/A\n`; });
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -1051,9 +1118,9 @@
     }
 
     function loadSettingsForm() {
-        document.getElementById('set-kwh').value = appData.settings.kwhRate || 12;
-        document.getElementById('set-util-start').value = appData.settings.utilityStart;
-        document.getElementById('set-util-end').value = appData.settings.utilityEnd;
+        document.getElementById('set-kwh').value = appData.settings?.kwhRate || 12;
+        document.getElementById('set-util-start').value = appData.settings?.utilityStart || '';
+        document.getElementById('set-util-end').value = appData.settings?.utilityEnd || '';
     }
 
     function saveSettings(e) {
@@ -1065,6 +1132,7 @@
 
         setTimeout(() => {
             try {
+                if (!appData.settings) appData.settings = {};
                 appData.settings.kwhRate = parseFloat(document.getElementById('set-kwh').value) || 12;
                 appData.settings.utilityStart = document.getElementById('set-util-start').value;
                 appData.settings.utilityEnd = document.getElementById('set-util-end').value;
@@ -1078,17 +1146,23 @@
     }
 
     function clearAllData() {
-        if(confirm('Are you absolutely sure? This will delete all your local tracking data.')) {
-            localStorage.removeItem(DB_KEY);
-            location.reload();
+        if(confirm('Are you absolutely sure? This will permanently delete all cloud data.')) {
+            appData = { settings: { kwhRate: 12.00, utilityStart: '', utilityEnd: '' }, paychecks: [], expenses: [], meterReadings: [], bills: [] };
+            saveData();
+            showToast('All data cleared.');
         }
     }
 
     window.onload = () => {
-        loadData();
-        initForms();
-        const lastView = localStorage.getItem('relocTracker_activeView') || 'dashboard';
-        switchView(lastView);
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('exp-date').value = today;
+        document.getElementById('meter-date').value = today;
+        document.getElementById('bill-date').value = today;
+        document.getElementById('inc-paydate').value = today;
+        
+        let nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + 15);
+        document.getElementById('inc-nextdate').value = nextDate.toISOString().split('T')[0];
     };
 </script>
 </body>
