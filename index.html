@@ -326,7 +326,6 @@
         }
         #global-refresh:active { transform: rotate(180deg) scale(0.9); }
 
-        /* Login Modal Overlay */
         #auth-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -393,7 +392,7 @@
             <span>Log</span>
         </div>
         <div class="nav-item" onclick="switchView('settings')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Config</span>
         </div>
     </nav>
@@ -414,7 +413,7 @@
             </div>
 
             <div class="stat-grid">
-                <!-- MARIBANK SAVINGS TILE (Spans 2 columns - Always All Time) -->
+                <!-- MARIBANK SAVINGS TILE -->
                 <div class="stat-box" style="grid-column: span 2; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; border: none; padding: 20px;">
                     <div class="stat-label" style="color: rgba(255,255,255,0.9);">MariBank Vault (All Time)</div>
                     <div class="stat-value" id="dash-savings-total" style="color: white; font-size: 2rem;">₱0.00</div>
@@ -444,11 +443,9 @@
                     <h2 style="margin: 0;">Cycle Breakdown</h2>
                 </div>
                 
-                <!-- MOVED CYCLE SELECTOR DIRECTLY INSIDE PIE CHART CONTAINER -->
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">Select Cycle to View:</label>
                     <select id="dash-cycle-select" onchange="updateDashboard()" style="font-weight: 600; border-color: var(--primary); background-color: var(--bg-light); color: var(--primary);">
-                        <!-- Populated dynamically -->
                     </select>
                 </div>
 
@@ -523,6 +520,7 @@
                             <option value="Internet">Internet (Globe/Smart)</option>
                             <option value="Loan">Loan/Amortization</option>
                             <option value="Savings">Savings/Deposit</option>
+                            <option value="SavingsPullout">Savings Pullout/Emergency Withdrawal</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -530,11 +528,11 @@
                         <label>Specific Description</label>
                         <input type="text" id="bill-desc" placeholder="e.g., SSS, Laptop">
                     </div>
-                    <div class="form-group"><label>Due/Paid Date</label><input type="date" id="bill-date" required></div>
+                    <div class="form-group"><label>Date</label><input type="date" id="bill-date" required></div>
                     <div class="form-group"><label>Amount (₱)</label><input type="number" step="0.01" id="bill-amount" placeholder="0.00" required></div>
                     
                     <div class="checkbox-wrapper">
-                        <label for="bill-paid-input">Mark as Paid Now</label>
+                        <label for="bill-paid-input">Mark as Completed/Paid Now</label>
                         <input type="checkbox" id="bill-paid-input" class="custom-check">
                     </div>
                     
@@ -573,22 +571,31 @@
             <div class="card">
                 <h2>Data Management</h2>
                 <p style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">Export specific cycles to a spreadsheet.</p>
-                <!-- CYCLE SELECTOR FOR CSV -->
                 <div class="form-group">
                     <select id="export-cycle-select" style="font-weight: 600; border-color: var(--primary);">
-                        <!-- Populated dynamically -->
                     </select>
                 </div>
                 <button type="button" class="btn-outline" onclick="exportCSV()">Download Data (CSV)</button>
             </div>
 
+            <!-- NEW FEATURE: RESET ELECTRIC METER -->
+            <div class="card">
+                <h2>Reset Electric Meter Base</h2>
+                <p style="font-size:0.85rem; margin-bottom:15px; color:var(--text-muted);">If your physical meter rolled over or was replaced, reset the baseline to 0000 or a custom value.</p>
+                <form id="reset-meter-form" onsubmit="resetMeterBaseline(event)">
+                    <div class="form-group">
+                        <label>New Base Reading (kWh)</label>
+                        <input type="number" step="0.1" id="set-meter-base" value="0.0" required>
+                    </div>
+                    <button type="submit" class="btn-outline" style="border-color: var(--warning); color: var(--warning);">Set Meter Base</button>
+                </form>
+            </div>
+
             <div class="card">
                 <h2>Rates & Billing Cycles</h2>
                 <form id="settings-form" onsubmit="saveSettings(event)">
-                    <!-- Savings Interest Rate Configuration -->
                     <div class="form-group">
                         <label>Bank Interest Rate (% p.a.)</label>
-                        <!-- Defaulted to 3.75 based on new Maribank rate -->
                         <input type="number" step="0.01" id="set-interest" value="3.75" required>
                     </div>
 
@@ -598,6 +605,7 @@
                     <button type="submit">Save Settings</button>
                 </form>
             </div>
+
             <div class="card" style="border-color: var(--danger);">
                 <h2 style="color: var(--danger);">Danger Zone</h2>
                 <p style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">Deletes data from the Cloud.</p>
@@ -735,9 +743,6 @@
         setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    // -----------------------------------------------------------------
-    // POPULATE CYCLE DROPDOWNS
-    // -----------------------------------------------------------------
     function populateCycleDropdown(elementId) {
         const select = document.getElementById(elementId);
         if (!select) return;
@@ -869,6 +874,23 @@
         }, 400);
     }
 
+    function resetMeterBaseline(e) {
+        e.preventDefault();
+        const newBase = parseFloat(document.getElementById('set-meter-base').value) || 0;
+        const today = new Date().toISOString().split('T')[0];
+        
+        if (!appData.meterReadings) appData.meterReadings = [];
+        appData.meterReadings.push({ 
+            id: Date.now().toString(), 
+            date: today, 
+            current: newBase, 
+            prior: newBase, 
+            net: 0 
+        });
+        saveData();
+        showToast(`Meter baseline reset to ${newBase.toFixed(1)} kWh!`);
+    }
+
     function updateMeterHelper() {
         const helper = document.getElementById('meter-calc-helper');
         if (appData.meterReadings && appData.meterReadings.length > 0) {
@@ -911,7 +933,10 @@
             try {
                 const rawType = document.getElementById('bill-type').value;
                 const desc = document.getElementById('bill-desc').value;
-                const typeString = (rawType === 'Loan') && desc.trim() !== '' ? `${rawType} (${desc})` : rawType;
+                
+                let typeString = rawType;
+                if (rawType === 'Loan' && desc.trim() !== '') typeString = `Loan (${desc})`;
+                if (rawType === 'SavingsPullout') typeString = 'Savings Emergency Pullout';
 
                 const bill = {
                     id: Date.now().toString(),
@@ -929,7 +954,7 @@
                 document.getElementById('bill-amount').value = '';
                 document.getElementById('bill-desc').value = '';
                 document.getElementById('bill-paid-input').checked = false;
-                showToast(bill.paid ? 'Logged & added to Expense Log!' : 'Added to Pending Bills!');
+                showToast(bill.paid ? 'Logged successfully!' : 'Added to Pending!');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
@@ -1001,15 +1026,19 @@
         });
 
         paid.forEach(bill => {
+            const isPullout = bill.category === 'SavingsPullout';
+            const priceColor = isPullout ? 'var(--warning)' : 'var(--text-main)';
+            const prefix = isPullout ? '-' : '';
+
             paidContainer.innerHTML += `
             <div class="list-item">
                 <div class="item-details" style="flex:1;">
                     <span class="item-title">${bill.type}</span>
-                    <span class="item-date">Paid: ${new Date(bill.date).toLocaleDateString()}</span>
+                    <span class="item-date">Completed: ${new Date(bill.date).toLocaleDateString()}</span>
                 </div>
                 <div style="display:flex; align-items:center;">
-                    <span class="item-price" style="color:var(--text-main);">₱${bill.amount.toFixed(2)}</span>
-                    <span style="color: var(--success); font-weight: 600; font-size: 0.85rem; margin-left: 10px;">✓ Paid</span>
+                    <span class="item-price" style="color:${priceColor};">${prefix}₱${bill.amount.toFixed(2)}</span>
+                    <span style="color: var(--success); font-weight: 600; font-size: 0.85rem; margin-left: 10px;">✓ Done</span>
                     <button class="delete-btn" onclick="deleteBill('${bill.id}')">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
                     </button>
@@ -1046,7 +1075,7 @@
         }, {});
 
         for (const [date, items] of Object.entries(grouped)) {
-            const dateTotal = items.reduce((sum, e) => sum + e.amount, 0);
+            const dateTotal = items.reduce((sum, e) => sum + (e.category === 'SavingsPullout' ? -e.amount : e.amount), 0);
             const dateHeader = document.createElement('div');
             dateHeader.style.cssText = "background: var(--bg-light); padding: 8px 12px; margin: 15px -20px 5px -20px; font-weight: bold; display: flex; justify-content: space-between;";
             dateHeader.innerHTML = `<span>${new Date(date).toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'})}</span> <span>₱${dateTotal.toFixed(2)}</span>`;
@@ -1054,8 +1083,14 @@
 
             items.forEach(exp => {
                 const isSavings = exp.category === 'Savings';
-                const textColor = isSavings ? 'var(--success)' : 'var(--danger)';
-                const sign = isSavings ? '+' : '-';
+                const isPullout = exp.category === 'SavingsPullout';
+                
+                let textColor = 'var(--danger)';
+                let sign = '-';
+
+                if (isSavings) { textColor = 'var(--success)'; sign = '+'; }
+                if (isPullout) { textColor = 'var(--warning)'; sign = '↩ '; }
+
                 const delFunc = exp.isBill ? `deleteBill('${exp.id}')` : `deleteExpense('${exp.id}')`;
 
                 const itemDiv = document.createElement('div');
@@ -1081,44 +1116,65 @@
         try {
             populateCycleDropdown('dash-cycle-select');
             
-            // --- DAILY COMPOUNDING SAVINGS CALCULATION (ALWAYS ALL-TIME) ---
+            // --- DAILY COMPOUNDING SAVINGS ENGINE WITH PULLOUT SUPPORT ---
             const todayDate = new Date();
             todayDate.setHours(0, 0, 0, 0);
             
             const annualRate = parseFloat(appData.settings?.interestRate) || 3.75;
-            
-            // EXACT MariBank Math: Daily gross rate, less 20% Philippine Withholding Tax
             const grossDailyRate = (annualRate / 100) / 365;
 
-            let totalSavingsPrincipal = 0;
-            let totalSavingsWithInterest = 0;
+            // Gather all completed Savings and Pullouts in chronological order
+            const savingsEvents = (appData.bills || [])
+                .filter(b => (b.category === 'Savings' || b.category === 'SavingsPullout') && b.paid)
+                .sort((a,b) => new Date(a.date) - new Date(b.date));
 
-            const allSavings = (appData.bills || []).filter(b => b.category === 'Savings' && b.paid);
-            
-            allSavings.forEach(saveItem => {
-                const depositDate = new Date(saveItem.date);
-                depositDate.setHours(0, 0, 0, 0);
-                
-                let daysDiff = Math.floor((todayDate - depositDate) / (1000 * 60 * 60 * 24));
-                if (daysDiff < 0) daysDiff = 0;
-                
-                const principal = parseFloat(saveItem.amount) || 0;
-                let balance = principal;
+            let currentVaultBalance = 0;
+            let totalPrincipalDepositedNet = 0;
+            let lastEventDate = null;
 
-                // Loop through exactly how MariBank credits it every midnight
-                for(let i = 0; i < daysDiff; i++) {
-                    let grossInterest = balance * grossDailyRate;
-                    let netInterest = grossInterest * 0.80; // Minus 20% WHT
-                    balance += netInterest;
+            savingsEvents.forEach(evt => {
+                const eventDate = new Date(evt.date);
+                eventDate.setHours(0, 0, 0, 0);
+
+                if (lastEventDate) {
+                    let daysBetween = Math.floor((eventDate - lastEventDate) / (1000 * 60 * 60 * 24));
+                    if (daysBetween > 0) {
+                        for(let i = 0; i < daysBetween; i++) {
+                            let grossInterest = currentVaultBalance * grossDailyRate;
+                            let netInterest = grossInterest * 0.80; // 20% Tax
+                            currentVaultBalance += netInterest;
+                        }
+                    }
                 }
-                
-                totalSavingsPrincipal += principal;
-                totalSavingsWithInterest += balance;
+
+                const amt = parseFloat(evt.amount) || 0;
+                if (evt.category === 'Savings') {
+                    currentVaultBalance += amt;
+                    totalPrincipalDepositedNet += amt;
+                } else if (evt.category === 'SavingsPullout') {
+                    currentVaultBalance -= amt;
+                    totalPrincipalDepositedNet -= amt;
+                    if (currentVaultBalance < 0) currentVaultBalance = 0;
+                }
+
+                lastEventDate = eventDate;
             });
 
-            const totalInterestEarned = totalSavingsWithInterest - totalSavingsPrincipal;
-            document.getElementById('dash-savings-total').textContent = `₱${totalSavingsWithInterest.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-            document.getElementById('dash-savings-interest').textContent = `+₱${totalInterestEarned.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+            // Compound remaining days up to today
+            if (lastEventDate) {
+                let daysToToday = Math.floor((todayDate - lastEventDate) / (1000 * 60 * 60 * 24));
+                if (daysToToday > 0) {
+                    for(let i = 0; i < daysToToday; i++) {
+                        let grossInterest = currentVaultBalance * grossDailyRate;
+                        let netInterest = grossInterest * 0.80;
+                        currentVaultBalance += netInterest;
+                    }
+                }
+            }
+
+            const totalNetInterestEarned = currentVaultBalance - totalPrincipalDepositedNet;
+            document.getElementById('dash-savings-total').textContent = `₱${currentVaultBalance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+            document.getElementById('dash-savings-interest').textContent = `+₱${(totalNetInterestEarned < 0 ? 0 : totalNetInterestEarned).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
             // ----------------------------------------------
 
             const selectedCycleId = document.getElementById('dash-cycle-select').value;
@@ -1154,9 +1210,14 @@
             }
 
             const expSum = cycleExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            const billSum = cycleBills.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0);
-            const totalSpent = expSum + billSum;
             
+            // Treat SavingsPullout as returning money to Takehome
+            const billSum = cycleBills.reduce((sum, b) => {
+                const amt = parseFloat(b.amount) || 0;
+                return b.category === 'SavingsPullout' ? sum - amt : sum + amt;
+            }, 0);
+
+            const totalSpent = expSum + billSum;
             const remaining = takehome - totalSpent;
 
             const totalKwh = cycleKwh.reduce((sum, r) => sum + parseFloat(r.net || 0), 0);
@@ -1183,8 +1244,10 @@
                 categories[cat] = (categories[cat] || 0) + (parseFloat(e.amount) || 0); 
             });
             cycleBills.forEach(b => { 
-                const cat = b.category || 'Bills';
-                categories[cat] = (categories[cat] || 0) + (parseFloat(b.amount) || 0); 
+                if (b.category !== 'SavingsPullout') {
+                    const cat = b.category || 'Bills';
+                    categories[cat] = (categories[cat] || 0) + (parseFloat(b.amount) || 0); 
+                }
             });
             
             new Chart(ctxCat, {
