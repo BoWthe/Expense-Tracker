@@ -392,7 +392,7 @@
             <span>Log</span>
         </div>
         <div class="nav-item" onclick="switchView('settings')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Config</span>
         </div>
     </nav>
@@ -578,10 +578,10 @@
                 <button type="button" class="btn-outline" onclick="exportCSV()">Download Data (CSV)</button>
             </div>
 
-            <!-- NEW FEATURE: RESET ELECTRIC METER -->
+            <!-- RESET ELECTRIC METER -->
             <div class="card">
                 <h2>Reset Electric Meter Base</h2>
-                <p style="font-size:0.85rem; margin-bottom:15px; color:var(--text-muted);">If your physical meter rolled over or was replaced, reset the baseline to 0000 or a custom value.</p>
+                <p style="font-size:0.85rem; margin-bottom:15px; color:var(--text-muted);">Resets your meter baseline to 0000 (or custom value) and clears obsolete prior logs.</p>
                 <form id="reset-meter-form" onsubmit="resetMeterBaseline(event)">
                     <div class="form-group">
                         <label>New Base Reading (kWh)</label>
@@ -879,15 +879,16 @@
         const newBase = parseFloat(document.getElementById('set-meter-base').value) || 0;
         const today = new Date().toISOString().split('T')[0];
         
-        if (!appData.meterReadings) appData.meterReadings = [];
-        appData.meterReadings.push({ 
+        // Clean slate: reset meter array with the new base reading
+        appData.meterReadings = [{ 
             id: Date.now().toString(), 
             date: today, 
             current: newBase, 
             prior: newBase, 
             net: 0 
-        });
+        }];
         saveData();
+        updateMeterHelper();
         showToast(`Meter baseline reset to ${newBase.toFixed(1)} kWh!`);
     }
 
@@ -1116,14 +1117,13 @@
         try {
             populateCycleDropdown('dash-cycle-select');
             
-            // --- DAILY COMPOUNDING SAVINGS ENGINE WITH PULLOUT SUPPORT ---
+            // --- DAILY COMPOUNDING SAVINGS ENGINE ---
             const todayDate = new Date();
             todayDate.setHours(0, 0, 0, 0);
             
             const annualRate = parseFloat(appData.settings?.interestRate) || 3.75;
             const grossDailyRate = (annualRate / 100) / 365;
 
-            // Gather all completed Savings and Pullouts in chronological order
             const savingsEvents = (appData.bills || [])
                 .filter(b => (b.category === 'Savings' || b.category === 'SavingsPullout') && b.paid)
                 .sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -1160,7 +1160,6 @@
                 lastEventDate = eventDate;
             });
 
-            // Compound remaining days up to today
             if (lastEventDate) {
                 let daysToToday = Math.floor((todayDate - lastEventDate) / (1000 * 60 * 60 * 24));
                 if (daysToToday > 0) {
@@ -1211,7 +1210,6 @@
 
             const expSum = cycleExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
             
-            // Treat SavingsPullout as returning money to Takehome
             const billSum = cycleBills.reduce((sum, b) => {
                 const amt = parseFloat(b.amount) || 0;
                 return b.category === 'SavingsPullout' ? sum - amt : sum + amt;
